@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Finance Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS will go here */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        header h1 i {
+            margin-right: 10px;
+            color: #3498db;
+        }
+
+        .date {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .balance p { color: #2ecc71; }
+        .income p { color: #3498db; }
+        .expenses p { color: #e74c3c; }
+        .debt p { color: #f39c12; }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #7f8c8d;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: #3498db;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #3498db;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .transaction-list, .debt-list {
+            list-style: none;
+        }
+
+        .transaction-item, .debt-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-income {
+            border-left: 4px solid #3498db;
+        }
+
+        .transaction-expense {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+        }
+
+        .income-amount {
+            color: #3498db;
+        }
+
+        .expense-amount {
+            color: #e74c3c;
+        }
+
+        .transaction-details {
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+
+        .transaction-category {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn i {
+            margin-right: 5px;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            margin-left: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .debt-progress {
+            height: 5px;
+            background: #ecf0f1;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .debt-progress-bar {
+            height: 100%;
+            background: #f39c12;
+        }
+
+        .debt-snowball {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .debt-snowball h3 {
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+
+        .snowball-results {
+            margin-top: 15px;
+        }
+
+        .snowball-plan {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .snowball-plan h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .snowball-plan p {
+            margin: 3px 0;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-wallet"></i> Finance Tracker</h1>
+            <div class="date" id="current-date">Loading...</div>
+        </header>
+
+        <div class="dashboard">
+            <div class="card balance">
+                <h3>Available Balance</h3>
+                <p id="balance-amount">$0.00</p>
+            </div>
+            <div class="card income">
+                <h3>This Month's Income</h3>
+                <p id="income-amount">$0.00</p>
+            </div>
+            <div class="card expenses">
+                <h3>This Month's Expenses</h3>
+                <p id="expenses-amount">$0.00</p>
+            </div>
+            <div class="card debt">
+                <h3>Remaining Debt</h3>
+                <p id="debt-amount">$0.00</p>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="transactions">Transactions</button>
+            <button class="tab-btn" data-tab="debts">Debts</button>
+            <button class="tab-btn" data-tab="add">Add New</button>
+        </div>
+
+        <div class="tab-content active" id="transactions">
+            <h2><i class="fas fa-exchange-alt"></i> Recent Transactions</h2>
+            <div class="filters">
+                <select id="type-filter">
+                    <option value="all">All</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expenses</option>
+                </select>
+            </div>
+            <ul class="transaction-list" id="transaction-list">
+                <!-- Transactions will appear here -->
+            </ul>
+        </div>
+
+        <div class="tab-content" id="debts">
+            <h2><i class="fas fa-credit-card"></i> My Debts</h2>
+            <div class="debt-list" id="debt-list">
+                <!-- Debts will appear here -->
+            </div>
+            <button class="btn" id="add-debt-btn"><i class="fas fa-plus"></i> Add Debt</button>
+            
+            <div class="debt-snowball hidden" id="debt-snowball">
+                <h3><i class="fas fa-snowflake"></i> Debt Snowball Calculator</h3>
+                <div class="form-group">
+                    <label for="snowball-payment">Monthly Payment ($)</label>
+                    <input type="number" id="snowball-payment" step="0.01" placeholder="e.g., 500">
+                </div>
+                <button class="btn" id="calculate-snowball">Calculate Payoff Plan</button>
+                <div class="snowball-results" id="snowball-results"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="add">
+            <h2><i class="fas fa-plus-circle"></i> Add New</h2>
+            <form id="transaction-form">
+                <div class="form-group">
+                    <label for="type">Type</label>
+                    <select id="type" required>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount ($)</label>
+                    <input type="number" id="amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category">
+                        <option value="general">General</option>
+                        <option value="salary">Salary</option>
+                        <option value="freelance">Freelance</option>
+                        <option value="food">Food</option>
+                        <option value="transport">Transport</option>
+                        <option value="bills">Bills</option>
+                        <option value="entertainment">Entertainment</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Add Transaction</button>
+            </form>
+
+            <form id="debt-form" class="hidden">
+                <div class="form-group">
+                    <label for="debt-name">Debt Name</label>
+                    <input type="text" id="debt-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="debt-amount">Total Amount ($)</label>
+                    <input type="number" id="debt-amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="debt-paid">Amount Paid ($)</label>
+                    <input type="number" id="debt-paid" step="0.01" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="debt-interest">Interest Rate (%)</label>
+                    <input type="number" id="debt-interest" step="0.01" value="0">
+                </div>
+                <button type="submit" class="btn">Add Debt</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript will go here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            const now = new Date();
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            // Tab switching
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    document.getElementById(btn.dataset.tab).classList.add('active');
+                });
+            });
+
+            // Initialize data
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            let debts = JSON.parse(localStorage.getItem('debts')) || [];
+
+            // DOM elements
+            const transactionForm = document.getElementById('transaction-form');
+            const debtForm = document.getElementById('debt-form');
+            const addDebtBtn = document.getElementById('add-debt-btn');
+            const typeFilter = document.getElementById('type-filter');
+
+            // Show debt form when "Add Debt" button is clicked
+            addDebtBtn.addEventListener('click', () => {
+                document.getElementById('transaction-form').classList.add('hidden');
+                document.getElementById('debt-form').classList.remove('hidden');
+                document.getElementById('debt-snowball').classList.remove('hidden');
+            });
+
+            // Show transaction form when transaction tab is active
+            document.querySelector('[data-tab="add"]').addEventListener('click', () => {
+                document.getElementById('transaction-form').classList.remove('hidden');
+                document.getElementById('debt-form').classList.add('hidden');
+                document.getElementById('debt-snowball').classList.add('hidden');
+            });
+
+            // Add new transaction
+            transactionForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const transaction = {
+                    id: Date.now(),
+                    type: document.getElementById('type').value,
+                    amount: parseFloat(document.getElementById('amount').value),
+                    description: document.getElementById('description').value,
+                    category: document.getElementById('category').value,
+                    date: new Date().toISOString()
+                };
+                
+                transactions.push(transaction);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                
+                updateTransactions();
+                updateDashboard();
+                this.reset();
+            });
+
+            // Add new debt
+            debtForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const debt = {
+                    id: Date.now(),
+                    name: document.getElementById('debt-name').value,
+                    amount: parseFloat(document.getElementById('debt-amount').value),
+                    paid: parseFloat(document.getElementById('debt-paid').value),
+                    interest: parseFloat(document.getElementById('debt-interest').value),
+                    date: new Date().toISOString()
+                };
+                
+                debts.push(debt);
+                localStorage.setItem('debts', JSON.stringify(debts));
+                
+                updateDebtList();
+                updateDashboard();
+                this.reset();
+            });
+
+            // Filter transactions
+            typeFilter.addEventListener('change', updateTransactions);
+
+            // Debt snowball calculator
+            document.getElementById('calculate-snowball').addEventListener('click', () => {
+                const monthlyPayment = parseFloat(document.getElementById('snowball-payment').value);
+                
+                if (!monthlyPayment || isNaN(monthlyPayment)) {
+                    alert("Please enter a valid monthly payment amount.");
+                    return;
+                }
+
+                if (debts.length === 0) {
+                    alert("No debts found. Add debts first.");
+                    return;
+                }
+
+                // Sort debts by remaining balance (smallest first - snowball method)
+                const sortedDebts = [...debts].sort((a, b) => (a.amount - a.paid) - (b.amount - b.paid));
+                
+                let remainingPayment = monthlyPayment;
+                let resultsHTML = "<h4>Debt Payoff Plan</h4>";
+                let month = 1;
+                let totalInterest = 0;
+
+                while (sortedDebts.some(debt => (debt.amount - debt.paid) > 0) {
+                    resultsHTML += `<div class="snowball-plan"><h4>Month ${month}</h4>`;
+                    let monthlyMessage = "";
+
+                    for (const debt of sortedDebts) {
+                        const remainingDebt = debt.amount - debt.paid;
+                        if (remainingDebt <= 0) continue;
+
+                        // Calculate interest for this month
+                        const monthlyInterest = remainingDebt * (debt.interest / 100 / 12);
+                        totalInterest += monthlyInterest;
+                        
+                        const payment = Math.min(remainingDebt + monthlyInterest, remainingPayment);
+                        if (payment <= 0) break;
+
+                        const principalPayment = payment - monthlyInterest;
+                        monthlyMessage += `
+                            <p>
+                                Pay $${payment.toFixed(2)} to <strong>${debt.name}</strong>
+                                (Principal: $${principalPayment.toFixed(2)}, Interest: $${monthlyInterest.toFixed(2)})
+                                <br>Remaining: $${(remainingDebt - principalPayment).toFixed(2)}
+                            </p>
+                        `;
+                        
+                        debt.paid += principalPayment;
+                        remainingPayment -= payment;
+                    }
+
+                    if (!monthlyMessage) {
+                        monthlyMessage = "<p>No payments applied this month (insufficient funds).</p>";
+                    }
+
+                    resultsHTML += monthlyMessage + `</div>`;
+                    remainingPayment = monthlyPayment; // Reset for next month
+                    month++;
+                    
+                    // Stop after 60 months (5 years) to prevent infinite loop
+                    if (month > 60) {
+                        resultsHTML += `<p><strong>Note:</strong> Stopped after 5 years. Some debts may remain.</p>`;
+                        break;
+                    }
+                }
+
+                resultsHTML += `<p><strong>Total Interest Paid:</strong> $${totalInterest.toFixed(2)}</p>`;
+                document.getElementById('snowball-results').innerHTML = resultsHTML;
+                localStorage.setItem('debts', JSON.stringify(debts));
+                updateDebtList();
+            });
+
+            // Update functions
+            function updateDashboard() {
+                // Calculate balance
+                const totalIncome = transactions
+                    .filter(t => t.type === 'income')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                const totalExpenses = transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                const balance = totalIncome - totalExpenses;
+                
+                // Calculate remaining debt
+                const totalDebt = debts.reduce((sum, d) => sum + (d.amount - d.paid), 0);
+                
+                // Update UI
+                document.getElementById('balance-amount').textContent = `$${balance.toFixed(2)}`;
+                document.getElementById('income-amount').textContent = `$${totalIncome.toFixed(2)}`;
+                document.getElementById('expenses-amount').textContent = `$${totalExpenses.toFixed(2)}`;
+                document.getElementById('debt-amount').textContent = `$${totalDebt.toFixed(2)}`;
+            }
+
+            function updateTransactions() {
+                const filter = typeFilter.value;
+                const filteredTransactions = filter === 'all' 
+                    ? transactions 
+                    : transactions.filter(t => t.type === filter);
+                
+                const transactionList = document.getElementById('transaction-list');
+                transactionList.innerHTML = '';
+                
+                if (filteredTransactions.length === 0) {
+                    transactionList.innerHTML = '<li class="transaction-item">No transactions found</li>';
+                    return;
+                }
+                
+                // Sort by date (newest first)
+                filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                filteredTransactions.forEach(transaction => {
+                    const li = document.createElement('li');
+                    li.className = `transaction-item transaction-${transaction.type}`;
+                    
+                    li.innerHTML = `
+                        <div class="transaction-icon">
+                            <i class="fas ${transaction.type === 'income' ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-description">${transaction.description}</div>
+                            <div class="transaction-category">${transaction.category} • ${new Date(transaction.date).toLocaleDateString()}</div>
+                        </div>
+                        <div class="transaction-amount ${transaction.type}-amount">
+                            ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
+                        </div>
+                        <button class="btn btn-delete" data-id="${transaction.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    transactionList.appendChild(li);
+                });
+
+                // Add delete event listeners
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = parseInt(this.dataset.id);
+                        transactions = transactions.filter(t => t.id !== id);
+                        localStorage.setItem('transactions', JSON.stringify(transactions));
+                        updateTransactions();
+                        updateDashboard();
+                    });
+                });
+            }
+
+            function updateDebtList() {
+                const debtList = document.getElementById('debt-list');
+                debtList.innerHTML = '';
+                
+                if (debts.length === 0) {
+                    debtList.innerHTML = '<li class="debt-item">No debts found</li>';
+                    return;
+                }
+                
+                debts.forEach(debt => {
+                    const remaining = debt.amount - debt.paid;
+                    const progress = (debt.paid / debt.amount) * 100;
+                    
+                    const li = document.createElement('li');
+                    li.className = 'debt-item';
+                    
+                    li.innerHTML = `
+                        <div class="debt-info">
+                            <div class="debt-name">${debt.name}</div>
+                            <div class="debt-details">
+                                Paid: $${debt.paid.toFixed(2)} of $${debt.amount.toFixed(2)}
+                                ${debt.interest > 0 ? `• ${debt.interest}% interest` : ''}
+                            </div>
+                            <div class="debt-progress">
+                                <div class="debt-progress-bar" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                        <div class="debt-remaining">
+                            $${remaining.toFixed(2)}
+                        </div>
+                        <button class="btn btn-delete" data-id="${debt.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    debtList.appendChild(li);
+                });
+
+                // Add delete event listeners
+                document.querySelectorAll('.debt-item .btn-delete').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = parseInt(this.dataset.id);
+                        debts = debts.filter(d => d.id !== id);
+                        localStorage.setItem('debts', JSON.stringify(debts));
+                        updateDebtList();
+                        updateDashboard();
+                    });
+                });
+            }
+
+            // Initial load
+            updateTransactions();
+            updateDebtList();
+            updateDashboard();
+        });
+    </script>
+</body>
+</html>
